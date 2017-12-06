@@ -1,62 +1,65 @@
-#include <fcnt.l>
-#include <stdlib.h>
-#include <stdio.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ckrommen <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/12/05 20:13:43 by ckrommen          #+#    #+#             */
+/*   Updated: 2017/12/06 14:13:07 by ckrommen         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
-#define BUFFER 500
 
-int get_next_line(const int fd, char **line)
+char	*ft_remalloc(char *line)
 {
-  int buf;
-  static char *temp;
+	char	*new;
 
-  if (fd == -1)
-      return (-1);
-  if (fd == 0)
-    return (0);
-  if (!(*temp = ft_strnew(BUF_SIZE)))
-    return (0);
-  if (read(1, &buf, 1))
-    {
-      
-    }
+	new = ft_strnew(ft_strlen(line) + 1);
+	if (new)
+	{
+		ft_strncpy(new, (char *)line, (ft_strlen(line)));
+		free(line);
+		return (new);
+	}
+	return (NULL);
 }
 
-char	*filetoarr(char *av)
+int		ft_get_line(char **temp, int fd, char **line)
 {
-  char	*s;
-  int	i;
-  int	fd;
-  char	buf;
+	char	buf;
+	int		i;
 
-  i = 0;
-  fd = open(av, O_RDONLY);
-  if (fd == -1)
-    return ("error");
-  if (fd == 0)
-    return ("error");
-  s = (char *)malloc(sizeof(char) * 547);
-  while (read(fd, &buf, 1))
-    {
-      s[i] = buf;
-      i++;
-      if (i >= 547)
-	return ("error");
-    }
-  s[i] = '\0';
-  if (!tetchecker(s))
-    return ("error");
-  close(fd);
-  return (s);
+	i = 0;
+	if (!temp[fd])
+		temp[fd] = ft_strnew(BUFF_SIZE);
+	while (read(fd, &buf, BUFF_SIZE))
+	{
+		if (temp[fd])
+		{
+			if (buf == '\n')
+			{
+				temp[fd][i] = '\0';
+				*line = ft_strdup(temp[fd]);
+				return (1);
+			}
+		}
+		else
+			temp[fd] = ft_remalloc(temp[fd]);
+		temp[fd][i] = buf;
+		i++;
+	}
+	return (0);
 }
 
-int main(int argc, char **argv)
+int		ft_get_next_line(const int fd, char **line)
 {
-  int fd;
-  char *str;
+	static char *temp[4894];
 
-  if (argc == 2)
-    {
-      fd = open(fd, O_RDONLY);
-      get_next_line(fd, &str);
-    }
+	if (!line || fd < 0 || BUFF_SIZE < 1)
+		return (-1);
+	if (ft_get_line(&temp[fd], fd, line))
+		return (1);
+	return (0);
 }
