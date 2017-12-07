@@ -6,7 +6,7 @@
 /*   By: ckrommen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/06 14:05:27 by ckrommen          #+#    #+#             */
-/*   Updated: 2017/12/06 14:07:30 by ckrommen         ###   ########.fr       */
+/*   Updated: 2017/12/07 14:47:13 by ckrommen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@
 # include <fcntl.h>
 # include <stdlib.h>
 # include "libft/libft.h"
-# define BUFF_SIZE 1
+# define BUFF_SIZE 32
 
-int		ft_get_next_line(const int fd, char **line);
+int		get_next_line(const int fd, char **line);
+int		ft_read(char **temp, int fd);
 int		ft_get_line(char **temp, int fd, char **line);
-char	*ft_remalloc(char *line);
 
 #endif

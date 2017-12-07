@@ -6,60 +6,67 @@
 /*   By: ckrommen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/05 20:13:43 by ckrommen          #+#    #+#             */
-/*   Updated: 2017/12/06 14:13:07 by ckrommen         ###   ########.fr       */
+/*   Updated: 2017/12/07 14:52:22 by ckrommen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_remalloc(char *line)
-{
-	char	*new;
-
-	new = ft_strnew(ft_strlen(line) + 1);
-	if (new)
-	{
-		ft_strncpy(new, (char *)line, (ft_strlen(line)));
-		free(line);
-		return (new);
-	}
-	return (NULL);
-}
-
 int		ft_get_line(char **temp, int fd, char **line)
 {
-	char	buf;
-	int		i;
+	char *ap;
+	char *mem;
 
-	i = 0;
-	if (!temp[fd])
-		temp[fd] = ft_strnew(BUFF_SIZE);
-	while (read(fd, &buf, BUFF_SIZE))
+	if ((ap = ft_strchr(temp[fd], '\n')))
 	{
-		if (temp[fd])
-		{
-			if (buf == '\n')
-			{
-				temp[fd][i] = '\0';
-				*line = ft_strdup(temp[fd]);
-				return (1);
-			}
-		}
-		else
-			temp[fd] = ft_remalloc(temp[fd]);
-		temp[fd][i] = buf;
-		i++;
+		mem = temp[fd];
+		*ap = '\0';
+		*line = ft_strdup(temp[fd]);
+		temp[fd] = ft_strdup(ap + 1);
+		ft_strdel(&mem);
+		return (1);
+	}
+	else if (*temp[fd])
+	{
+		*line = ft_strdup(temp[fd]);
+		ft_strdel(&temp[fd]);
+		return (1);
 	}
 	return (0);
 }
 
-int		ft_get_next_line(const int fd, char **line)
+int		ft_read(char **temp, int fd)
 {
-	static char *temp[4894];
+	char	*buf;
+	char	*mem;
+	int		res;
 
-	if (!line || fd < 0 || BUFF_SIZE < 1)
+	buf = ft_strnew(BUFF_SIZE);
+	while ((res = read(fd, buf, BUFF_SIZE)) > 0)
+	{
+		if (!temp[fd])
+			temp[fd] = ft_strdup(buf);
+		else
+		{
+			mem = temp[fd];
+			temp[fd] = ft_strjoin(temp[fd], buf);
+			ft_strdel(&mem);
+		}
+		ft_bzero(buf, BUFF_SIZE);
+	}
+	ft_strdel(&buf);
+	return (res);
+}
+
+int		get_next_line(const int fd, char **line)
+{
+	static char *temp[4864];
+
+	if (!line || fd < 0 || BUFF_SIZE < 0)
 		return (-1);
-	if (ft_get_line(&temp[fd], fd, line))
+	if (ft_read(&temp[fd], fd) < 0)
+		return (-1);
+	if (ft_get_line(&temp[fd], fd, line) == 1)
 		return (1);
 	return (0);
 }
